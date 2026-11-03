@@ -28,6 +28,9 @@ jobs:
     - name: Install Dependencies
       run: flutter pub get
 
+    - name: Regenerate Android Platform Files
+      run: flutter create . --platforms=android --project-name=avenet_app
+
     - name: Build Release APK
       run: flutter build apk --release
 
