@@ -1,48 +1,42 @@
-import 'package:flutter/material.dart';
+name: Build Flutter APK
 
-class StorePage extends StatefulWidget {
-  const StorePage({Key? key}) : super(key: key);
+on:
+  push:
+    branches: [ main ]
 
-  @override
-  State<StorePage> createState() => _StorePageState();
-}
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-class _StorePageState extends State<StorePage> {
-  final List> _packages = [
-    {'id': '1', 'title': 'VIP Weekly', 'quota': 'Unlimited', 'price': 'Rp 15.000'},
-    {'id': '2', 'title': 'VIP Monthly', 'quota': 'Unlimited', 'price': 'Rp 45.000'},
-  ];
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-  void _buyPackage(String id, String title, String price) {
-    // Fungsi pembelian
-  }
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Store')),
-      body: ListView.builder(
-        itemCount: _packages.length,
-        itemBuilder: (context, index) {
-          final pkg = _packages[index];
-          return Card(
-            margin: const EdgeInsets.all(8.0),
-            child: ListTile(
-              title: Text(pkg['title'].toString()),
-              subtitle: Text('Kuota: ${pkg['quota']} - ${pkg['price']}'),
-              trailing: ElevatedButton(
-                onPressed: () => _buyPackage(
-                  pkg['id'].toString(),
-                  pkg['title'].toString(),
-                  pkg['price'].toString(),
-                ),
-                child: const Text('Beli'),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.x'
+        channel: 'stable'
+        cache: true
 
+    - name: Install Dependencies
+      run: flutter pub get
+
+    - name: Regenerate Android Platform Files
+      run: flutter create . --platforms=android --project-name=avenet_app
+
+    - name: Build Release APK
+      run: flutter build apk --release --no-pub
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release
+        path: build/app/outputs/flutter-apk/app-release.apk
+        
