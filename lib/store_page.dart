@@ -13,9 +13,7 @@ class _StorePageState extends State<StorePage> {
     {'id': '2', 'title': 'VIP Monthly', 'quota': 'Unlimited', 'price': 'Rp 45.000'},
   ];
 
-  void _buyPackage(String id, String title, String price) {
-    // Fungsi pembelian
-  }
+  void _buyPackage(String id, String title, String price) {}
 
   @override
   Widget build(BuildContext context) {
@@ -45,3 +43,4 @@ class _StorePageState extends State<StorePage> {
     );
   }
 }
+
