@@ -32,7 +32,7 @@ jobs:
       run: flutter create . --platforms=android --project-name=avenet_app
 
     - name: Build Release APK
-      run: flutter build apk --release
+      run: flutter build apk --release --no-pub
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
