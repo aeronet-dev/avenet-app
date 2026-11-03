@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
-import 'store_page.dart'; // Menghubungkan halaman toko
+import 'store_page.dart';
+import 'profile_page.dart'; // <--- Posisinya ada di baris ke-4 ini (paling atas bersama impor lainnya)
 
 void main() {
   runApp(const AvenetApp());
@@ -38,8 +39,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _pages = [
     const DashboardPage(), // Menu 0: VPN
-    const StorePage(),     // Menu 1: Toko Paket (Aktif!)
-    const Center(child: Text("Halaman Akun & Referal (Segera Hadir)")),
+    const StorePage(),     // Menu 1: Toko Paket
+    const ProfilePage(),   // Menu 2: Akun & Referal
   ];
 
   @override
