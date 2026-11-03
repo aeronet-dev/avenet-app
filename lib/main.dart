@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import 'store_page.dart';
-import 'profile_page.dart'; // <--- Posisinya ada di baris ke-4 ini (paling atas bersama impor lainnya)
+import 'profile_page.dart';
 
 void main() {
   runApp(const AvenetApp());
