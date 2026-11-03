@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_page.dart'; // Menghubungkan halaman dashboard VPN
 
 void main() {
   runApp(const AvenetApp());
@@ -34,10 +35,11 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
+  // Daftar halaman aplikasi
   final List<Widget> _pages = [
-    const Center(child: Text("Halaman Dashboard (VPN)")),
-    const Center(child: Text("Hangkalan Toko Paket")),
-    const Center(child: Text("Halaman Akun & Referal")),
+    const DashboardPage(), // Halaman VPN utama yang sudah kita buat
+    const Center(child: Text("Halaman Toko Paket (Segera Hadir)")),
+    const Center(child: Text("Halaman Akun & Referal (Segera Hadir)")),
   ];
 
   @override
