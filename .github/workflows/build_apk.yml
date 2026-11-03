@@ -28,6 +28,9 @@ jobs:
     - name: Install Dependencies
       run: flutter pub get
 
+    - name: Fix Gradle / Android Setup
+      run: flutter create . --platforms=android --org com.aeronet.avenet
+
     - name: Build Release APK
       run: flutter build apk --release
 
