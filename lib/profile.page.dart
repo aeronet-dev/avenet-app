@@ -1,144 +1,183 @@
 import 'package:flutter/material.dart';
+import 'api_service.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late Future> _userProfileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Memanggil API service untuk mengambil data profil pengguna (ID dummy: 'user_001')
+    _userProfileFuture = ApiService.fetchUserProfile('user_001');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Akun & Referal Avenet'),
+        title: const Text('Profil & Referal Avenet'),
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          // Kartu Informasi Pengguna
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Color(0xFF06B6D4),
-                  child: Icon(Icons.person, size: 35, color: Colors.white),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Pengguna Avenet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'member@avenet.id',
-                      style: TextStyle(color: Colors.grey, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
+      body: FutureBuilder>(
+        future: _userProfileFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Terjadi kesalahan: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white)),
+            );
+          }
 
-          // Kartu Sistem Referal (Ajak Teman)
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF06B6D4).withOpacity(0.5)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          final data = snapshot.data ?? {};
+          final username = data['username'] ?? 'AvenetUser';
+          final quotaGb = data['quota_gb'] ?? 0.0;
+          final expiredDate = data['expired_date'] ?? '-';
+          final referralCode = data['referral_code'] ?? 'AVENET00';
+          final referralEarnings = data['referral_earnings'] ?? 0;
+
+          return Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ListView(
               children: [
-                Row(
-                  children: const [
-                    Icon(Icons.card_giftcard, color: Color(0xFF06B6D4)),
-                    SizedBox(width: 10),
-                    Text(
-                      'Ajak Teman & Dapat Kuota',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Bagikan link referal Anda ke teman. Dapatkan bonus kuota 1 GB setiap teman Anda bergabung dan membeli paket!',
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
-                ),
-                const SizedBox(height: 16),
+                // Kartu Informasi Akun
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        'https://avenet.id/ref/AVENET99',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
+                  child: Column(
+                    children: [
+                      const CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color(0xFF06B6D4),
+                        child: Icon(Icons.person, size: 40, color: Colors.white),
                       ),
-                      Icon(Icons.copy, size: 18, color: Color(0xFF06B6D4)),
+                      const SizedBox(height: 12),
+                      Text(
+                        username,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Status: Premium Member',
+                        style: TextStyle(color: Color(0xFF10B981), fontSize: 13),
+                      ),
+                      const Divider(height: 30, color: Colors.grey),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildInfoColumn('Sisa Kuota', '$quotaGb GB'),
+                          _buildInfoColumn('Maktif Aktif', expiredDate),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF06B6D4),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Link referal berhasil disalin ke clipboard!')),
-                      );
-                    },
-                    child: const Text('Salin Link Referal', style: TextStyle(color: Colors.white)),
+                const SizedBox(height: 20),
+
+                // Kartu Sistem Referal
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Program Referal Avenet',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Bagikan kode referal Anda dan dapatkan komisi saldo setiap kali teman Anda bergabung.',
+                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                      ),
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF06B6D4)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              referralCode,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF06B6D4),
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF06B6D4),
+                              ),
+                              onPressed: () {
+                                // Aksi salin kode referal
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Kode referal disalin!')),
+                                );
+                              },
+                              child: const Text('Salin', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        'Total Komisi: Rp $referralEarnings',
+                        style: const TextStyle(
+                          color: Color(0xFF10B981),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-
-          // Tombol Keluar
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.redAccent,
-              side: const BorderSide(color: Colors.redAccent),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Simulasi: Berhasil keluar akun.')),
-              );
-            },
-            icon: const Icon(Icons.logout),
-            label: const Text('Keluar Aplikasi', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
+
+  Widget _buildInfoColumn(String title, String value) {
+    return Column(
+      children: [
+        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+      ],
+    );
+  }
 }
+
