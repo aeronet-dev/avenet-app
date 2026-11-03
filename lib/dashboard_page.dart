@@ -9,11 +9,30 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   bool _isConnected = false;
-  double _remainingQuota = 2.00; // Sisa kuota dalam GB
+  bool _isConnecting = false;
+  String _statusText = 'Terputus';
 
   void _toggleConnection() {
     setState(() {
-      _isConnected = !_isConnected;
+      if (_isConnected) {
+        // Jika sedang terhubung, putuskan koneksi
+        _isConnected = false;
+        _isConnecting = false;
+        _statusText = 'Terputus';
+      } else {
+        // Proses simulasi menghubungkan ke server Xray/V2Ray
+        _isConnecting = true;
+        _statusText = 'Menghubungkan ke Server...';
+
+        // Simulasi jeda waktu koneksi (2 detik)
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {
+            _isConnecting = false;
+            _isConnected = true;
+            _statusText = 'Terhubung (Avenet SG-01)';
+          });
+        });
+      }
     });
   }
 
@@ -21,7 +40,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Avenet VPN Tunnel'),
+        title: const Text('Avenet VPN Dashboard'),
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
       ),
@@ -30,96 +49,83 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Status Kotak Informasi Kuota
+            // Status Indikator Lingkaran
             Container(
-              padding: const EdgeInsets.all(20),
+              width: 160,
+              height: 160,
               decoration: BoxDecoration(
+                shape: BoxShape.circle,
                 color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      const Text('Sisa Kuota', style: TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${_remainingQuota.toStringAsFixed(2)} GB',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF06B6D4)),
-                      ),
-                    ],
-                  ),
-                  const ContainerDivider(),
-                  Column(
-                    children: [
-                      const Text('Status Jaringan', style: TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isConnected ? 'Terhubung (Avenet)' : 'Terputus',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: _isConnected ? Colors.greenAccent : Colors.redAccent,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 50),
-
-            // Tombol Utama VPN Raksasa
-            GestureDetector(
-              onTap: _toggleConnection,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _isConnected ? Colors.green.withOpacity(0.2) : const Color(0xFF06B6D4).withOpacity(0.2),
-                  border: Border.all(
-                    color: _isConnected ? Colors.greenAccent : const Color(0xFF06B6D4),
-                    width: 4,
-                  ),
+                border: Border.all(
+                  color: _isConnected
+                      ? const Color(0xFF10B981) // Hijau jika terhubung
+                      : (_isConnecting ? Colors.amber : const Color(0xFF06B6D4)),
+                  width: 4,
                 ),
-                child: Center(
-                  child: Container(
-                    width: 160,
-                    height: 160,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isConnected ? Colors.green : const Color(0xFF06B6D4),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isConnected ? Icons.lock : Icons.lock_open,
+                      size: 50,
+                      color: _isConnected ? const Color(0xFF10B981) : Colors.grey,
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _isConnected ? Icons.power_settings_new : Icons.shield,
-                          size: 50,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _isConnected ? 'PUTUSKAN' : 'HUBUNGKAN',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      _isConnected ? 'SECURE' : 'OFFLINE',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: _isConnected ? const Color(0xFF10B981) : Colors.grey,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
             const SizedBox(height: 30),
+
+            // Keterangan Status Teks
             Text(
-              _isConnected ? 'Jaringan Anda aman dan di-masking oleh Avenet' : 'Ketuk tombol di atas untuk mulai terhubung',
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
-              textAlign: TextAlign.center,
+              _statusText,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Protokol: Xray / VLESS - TLS',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            const SizedBox(height: 50),
+
+            // Tombol Power Utama (Hubungkan / Putuskan)
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isConnected ? Colors.redAccent : const Color(0xFF06B6D4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: _isConnecting ? null : _toggleConnection,
+                child: Text(
+                  _isConnecting
+                      ? 'Menghubungkan...'
+                      : (_isConnected ? 'Putuskan Koneksi' : 'Hubungkan Sekarang'),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -128,15 +134,3 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-class ContainerDivider extends StatelessWidget {
-  const ContainerDivider({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      width: 1,
-      color: Colors.grey.withOpacity(0.3),
-    );
-  }
-}
