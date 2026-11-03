@@ -11,7 +11,8 @@ class StorePage extends StatefulWidget {
 class _StorePageState extends State<StorePage> {
   bool _isLoading = false;
 
-  final List> _packages = [
+  late final List _packages = [
+    
     {
       'id': 'pkg_10gb',
       'title': 'Paket Hemat 10 GB',
@@ -120,7 +121,7 @@ class _StorePageState extends State<StorePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              pkg['title'],
+                              pkg['title']!
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -129,12 +130,12 @@ class _StorePageState extends State<StorePage> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              pkg['quota'],
+                              pkg['quota']!
                               style: const TextStyle(color: Colors.grey, fontSize: 13),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              pkg['price'],
+                              pkg['price']!
                               style: const TextStyle(
                                 color: Color(0xFF10B981),
                                 fontWeight: FontWeight.bold,
