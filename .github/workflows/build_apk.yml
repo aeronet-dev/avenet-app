@@ -28,6 +28,12 @@ jobs:
     - name: Install Dependencies
       run: flutter pub get
 
+    - name: Upgrade Gradle Wrapper
+      run: |
+        cd android
+        ./gradlew wrapper --gradle-version 8.4
+        cd ..
+
     - name: Build Release APK
       run: flutter build apk --release
 
