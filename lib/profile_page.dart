@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -21,6 +22,22 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            Card(
+              elevation: 3,
+              child: ListTile(
+                leading: const Icon(Icons.wifi_lock, color: Colors.cyan),
+                title: const Text('Login Hotspot / Member', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Login akun voucher atau iuran jaringan'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 15),
             Card(
               elevation: 3,
               child: Padding(
