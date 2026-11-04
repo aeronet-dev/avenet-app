@@ -14,7 +14,34 @@ class _StorePageState extends State<StorePage> {
     {'id': '2', 'title': 'VIP Monthly', 'quota': 'Unlimited', 'price': 'Rp 45.000'},
   ];
 
-  void _buyPackage(String id, String title, String price) {}
+    void _buyPackage(String id, String title, String price) {
+    // Menampilkan dialog pop-up saat tombol Beli ditekan
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Pembelian'),
+          content: Text('Apakah Anda ingin membeli paket $title seharga $price?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Berhasil memilih paket $title!')),
+                );
+              },
+              child: Text('Beli Sekarang'),
+            ),
+          ],
+        );
+      },
+    );
+    }
+  
 
   @override
   Widget build(BuildContext context) {
