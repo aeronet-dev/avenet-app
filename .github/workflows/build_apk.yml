@@ -25,14 +25,13 @@ jobs:
         channel: 'stable'
         cache: true
 
-    - name: Install Dependencies
-      run: flutter pub get
-
-    - name: Regenerate Android Platform Files
-      run: flutter create . --platforms=android --project-name=avenet_app
+    - name: Clean and Get Dependencies
+      run: |
+        flutter clean
+        flutter pub get
 
     - name: Build Release APK
-      run: flutter build apk --release --no-pub --atacktrace
+      run: flutter build apk --release --no-pub --stacktrace
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
