@@ -56,6 +56,7 @@ class StorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // update
     final List> daftarPaket = [
       {'nama': 'Paket Harian (1 GB)', 'masa': '1 Hari', 'harga': 'Rp 5.000'},
       {'nama': 'Paket Hemat (5 GB)', 'masa': '7 Hari', 'harga': 'Rp 20.000'},
