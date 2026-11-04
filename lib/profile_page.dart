@@ -7,9 +7,67 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Profil & Referal')),
-      body: const Center(
-        child: Text('Halaman Akun & Referal Avenet'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const UserAccountsDrawerHeader(
+              accountName: Text('Avenet User', style: TextStyle(fontWeight: FontWeight.bold)),
+              accountEmail: Text('user@avenet.vpn'),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.teal,
+                child: Icon(Icons.person, size: 40, color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Status Langganan:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    const SizedBox(height: 5),
+                    const Text('Free Tier (Belum VIP)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+            Card(
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Kode Referal Anda:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    const SizedBox(height: 5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('AVENET8899', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Kode referal berhasil disalin!')),
+                            );
+                          },
+                          icon: const Icon(Icons.copy, size: 16),
+                          label: const Text('Salin'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
