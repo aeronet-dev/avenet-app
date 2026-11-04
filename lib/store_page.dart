@@ -8,7 +8,8 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
-  final List> _packages = [
+  // Menggunakan List dinamis tanpa kurung siku tipe data agar aman dari error web editor
+  final List _packages = [
     {'id': '1', 'title': 'VIP Weekly', 'quota': 'Unlimited', 'price': 'Rp 15.000'},
     {'id': '2', 'title': 'VIP Monthly', 'quota': 'Unlimited', 'price': 'Rp 45.000'},
   ];
