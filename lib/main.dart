@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'welcome_page.dart';
 import 'dashboard_page.dart';
 import 'store_page.dart';
 import 'profile_page.dart';
-import 'login_page.dart';
 
 void main() {
   runApp(const AvenetApp());
 }
 
 class AvenetApp extends StatelessWidget {
-  const AvenetApp({Key? key}) : super(key: key);
+  const AvenetApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +21,9 @@ class AvenetApp extends StatelessWidget {
         primarySwatch: Colors.cyan,
         scaffoldBackgroundColor: const Color(0xFF101927),
       ),
-      // Kita mulai dari halaman Login/Masuk sesuai rencana nomor 1
-      initialRoute: '/login',
+      // Aplikasi dibuka pertama kali ke Halaman Sambutan (Welcome / Auth Screen)
+      home: const WelcomePage(),
       routes: {
-        '/login': (context) => const LoginPage(),
         '/home': (context) => const MainNavigator(),
       },
     );
@@ -32,7 +31,7 @@ class AvenetApp extends StatelessWidget {
 }
 
 class MainNavigator extends StatefulWidget {
-  const MainNavigator({Key? key}) : super(key: key);
+  const MainNavigator({super.key});
 
   @override
   State<MainNavigator> createState() => _MainNavigatorState();
@@ -41,10 +40,6 @@ class MainNavigator extends StatefulWidget {
 class _MainNavigatorState extends State<MainNavigator> {
   int _currentIndex = 0;
 
-  // Urutan Halaman sesuai Rencana:
-  // 0: Dashboard/Koneksi (Connection Screen)
-  // 1: Toko Paket (Store Screen)
-  // 2: Profil & Akun / Pengaturan
   final List<Widget> _pages = [
     const DashboardPage(),
     const StorePage(),
@@ -68,15 +63,15 @@ class _MainNavigatorState extends State<MainNavigator> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.shield),
-            label: 'VPN / Dashboard',
+            label: 'VPN',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.store),
-            label: 'Toko Paket',
+            label: 'Toko',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Akun & Login',
+            label: 'Akun',
           ),
         ],
       ),
