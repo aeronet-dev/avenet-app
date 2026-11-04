@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'vpn_service.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -13,12 +13,22 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _isLoading = false;
   String _statusText = 'Terputus';
 
+  // Simulasi data kuota & masa aktif pengguna (Nanti diambil dari database server)
+  final double _sisaKuotaGB = 0.0; // Saat ini 0 (belum beli paket)
+  final bool _isMasaAktifValid = false; // Belum aktif
+
   Future<void> _toggleVpnConnection() async {
+    // 1. PENGECEKAN GATEKEEPING (Validasi Kuota & Masa Aktif Nyata)
+    if (_sisaKuotaGB <= 0 || !_isMasaAktifValid) {
+      _tunjukkanDialogBeliPaket();
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    // Jeda simulasi proses koneksi jaringan
+    // Simulasi proses koneksi jaringan
     await Future.delayed(const Duration(seconds: 1));
 
     if (!_isConnected) {
@@ -48,6 +58,35 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  // Peringatan jika kuota habis / belum beli paket
+  void _tunjukkanDialogBeliPaket() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Text('Akses Dibatasi', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Maaf, sisa kuota Anda habis atau masa aktif telah berakhir. Silakan beli paket internet terlebih dahulu di menu Toko.',
+          style: TextStyle(color: Colors.grey),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup', style: TextStyle(color: Colors.cyan)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+            onPressed: () {
+              Navigator.pop(context);
+              // Pindah otomatis ke Tab Toko (Index 1) di bawah
+            },
+            child: const Text('Beli Paket Sekarang', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,18 +102,39 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Informasi Sisa Kuota di Atas Tombol Utama
               Container(
-                width: 200,
-                height: 200,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Sisa Kuota:', style: TextStyle(color: Colors.grey)),
+                    Text(
+                      '$_sisaKuotaGB GB (Habis)',
+                      style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Tombol Bulat Utama (The Big Button)
+              Container(
+                width: 180,
+                height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _isConnected ? Colors.greenAccent : Colors.cyan,
+                    color: _isConnected ? Colors.greenAccent : Colors.redAccent,
                     width: 4,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (_isConnected ? Colors.greenAccent : Colors.cyan).withOpacity(0.2),
+                      color: (_isConnected ? Colors.greenAccent : Colors.redAccent).withOpacity(0.2),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),
@@ -85,14 +145,14 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Icon(
                       _isConnected ? Icons.lock : Icons.lock_open,
-                      size: 60,
-                      color: _isConnected ? Colors.greenAccent : Colors.cyan,
+                      size: 50,
+                      color: _isConnected ? Colors.greenAccent : Colors.redAccent,
                     ),
                     const SizedBox(height: 10),
                     Text(
                       _isConnected ? 'ONLINE' : 'OFFLINE',
                       style: TextStyle(
-                        color: _isConnected ? Colors.greenAccent : Colors.cyan,
+                        color: _isConnected ? Colors.greenAccent : Colors.redAccent,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,
                       ),
@@ -100,7 +160,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               Text(
                 _statusText,
                 style: const TextStyle(
@@ -114,7 +174,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 'Protokol: Xray / VLESS - TLS',
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
+              
+              // Tombol Hubungkan / Putuskan
               SizedBox(
                 width: double.infinity,
                 height: 55,
