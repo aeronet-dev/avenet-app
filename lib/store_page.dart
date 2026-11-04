@@ -121,4 +121,3 @@ class StorePage extends StatelessWidget {
     );
   }
 }
-
