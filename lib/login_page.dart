@@ -23,6 +23,25 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    // Jika metode Iuran dipilih, tampilkan info khusus iuran
+    if (_selectedMethod == 'Iuran') {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Verifikasi Iuran'),
+          content: Text('Memeriksa status iuran bulanan untuk akun: $user.\nStatus: Lunas / Aktif.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Default untuk Voucher / Member
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -98,22 +117,31 @@ class _LoginPageState extends State<LoginPage> {
                           setState(() {
                             _selectedMethod = method;
                           });
+                          // Menampilkan notifikasi kecil saat opsi dipilih
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Metode dipilih: $method'),
+                              duration: const Duration(milliseconds: 500),
+                            ),
+                          );
                         },
                       ),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 15),
-                const Text(
-                  'Masukkan Username dan Password',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                Text(
+                  _selectedMethod == 'Iuran' 
+                      ? 'Masukkan ID Pelanggan / Nomor Iuran' 
+                      : 'Masukkan Username dan Password',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _usernameController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Username / Kode Voucher',
+                    labelText: _selectedMethod == 'Iuran' ? 'ID Pelanggan / No. Iuran' : 'Username / Kode Voucher',
                     labelStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: const Icon(Icons.person_outline, color: Colors.cyan),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -122,20 +150,24 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: const TextStyle(color: Colors.grey),
-                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.cyan),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: const Color(0xFF0F172A),
+                if (_selectedMethod != 'Iuran') ...[
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      prefixIcon: const Icon(Icons.lock_outline, color: Colors.cyan),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: const Color(0xFF0F172A),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 25),
+                  const SizedBox(height: 25),
+                ] else ...[
+                  const SizedBox(height: 15),
+                ],
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -145,9 +177,9 @@ class _LoginPageState extends State<LoginPage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: _handleLogin,
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                    child: Text(
+                      _selectedMethod == 'Iuran' ? 'Cek Status Iuran' : 'Login',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
                 ),
