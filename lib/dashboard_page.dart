@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'vpn_service.dart';
 
@@ -26,6 +27,47 @@ class _DashboardPageState extends State<DashboardPage> {
     'Server VIP 2 (Jepang - TYO)',
     'Server VIP 3 (Amerika Serikat - US)',
   ];
+
+  // Variabel Speedometer & Timer Durasi
+  Timer? _timer;
+  int _secondsConnected = 0;
+  String _downloadSpeed = '0.0 KB/s';
+  String _uploadSpeed = '0.0 KB/s';
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  // Fungsi Mulai Hitung Durasi & Kecepatan Semu saat Terhubung
+  void _startConnectionStats() {
+    _secondsConnected = 0;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _secondsConnected++;
+        // Simulasi fluktuasi kecepatan internet aktif
+        _downloadSpeed = '${(1.5 + (_secondsConnected % 3) * 0.4).toStringAsFixed(1)} MB/s';
+        _uploadSpeed = '${(350 + (_secondsConnected % 4) * 50)} KB/s';
+      });
+    });
+  }
+
+  // Fungsi Berhenti Statistik
+  void _stopConnectionStats() {
+    _timer?.cancel();
+    setState(() {
+      _secondsConnected = 0;
+      _downloadSpeed = '0.0 KB/s';
+      _uploadSpeed = '0.0 KB/s';
+    });
+  }
+
+  String _formatDuration(int totalSeconds) {
+    int minutes = totalSeconds ~/ 60;
+    int seconds = totalSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
 
   // Fungsi Pilih Server Dialog
   void _showServerSelectionDialog() {
@@ -92,6 +134,7 @@ class _DashboardPageState extends State<DashboardPage> {
         _statusText = success ? 'Terhubung ($_selectedServer)' : 'Terputus';
       });
       if (success) {
+        _startConnectionStats(); // Aktifkan Speedometer & Timer
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('VPN Berhasil Terhubung!')),
         );
@@ -102,6 +145,7 @@ class _DashboardPageState extends State<DashboardPage> {
         _isConnected = success;
         _statusText = 'Terputus';
       });
+      _stopConnectionStats(); // Matikan Speedometer & Timer
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Koneksi VPN diputus.')),
       );
@@ -225,7 +269,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ],
             
-            const SizedBox(height: 30),
+            const SizedBox(height: 25),
 
             // Tombol Bulat Utama (The Big Button)
             Container(
@@ -265,7 +309,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 20),
             Text(
               _statusText,
               style: const TextStyle(
@@ -275,7 +319,68 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 35),
+            
+            // WIDGET SPEEDOMETER & DURASI (Hanya tampil saat ONLINE)
+            if (_isConnected) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.greenAccent.withOpacity(0.4)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.timer, color: Colors.greenAccent, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Durasi: ${_formatDuration(_secondsConnected)}',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ],
+                    ),
+                    const Divider(color: Colors.grey, height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_downward, color: Colors.cyan, size: 18),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Download', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                                Text(_downloadSpeed, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_upward, color: Colors.orangeAccent, size: 18),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Upload', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                                Text(_uploadSpeed, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 30),
             
             // Tombol Hubungkan / Putuskan
             SizedBox(
