@@ -2,45 +2,53 @@ import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import 'store_page.dart';
 import 'profile_page.dart';
+import 'login_page.dart';
 
 void main() {
   runApp(const AvenetApp());
 }
 
 class AvenetApp extends StatelessWidget {
-  const AvenetApp({super.key});
+  const AvenetApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Avenet VPN',
+      title: 'Avenet App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF06B6D4),
-          surface: Color(0xFF1E293B),
-        ),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.cyan,
+        scaffoldBackgroundColor: const Color(0xFF101927),
       ),
-      home: const MainNavigationScreen(),
+      // Kita mulai dari halaman Login/Masuk sesuai rencana nomor 1
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const MainNavigator(),
+      },
     );
   }
 }
 
-class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+class MainNavigator extends StatefulWidget {
+  const MainNavigator({Key? key}) : super(key: key);
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  State<MainNavigator> createState() => _MainNavigatorState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _MainNavigatorState extends State<MainNavigator> {
   int _currentIndex = 0;
 
+  // Urutan Halaman sesuai Rencana:
+  // 0: Dashboard/Koneksi (Connection Screen)
+  // 1: Toko Paket (Store Screen)
+  // 2: Profil & Akun / Pengaturan
   final List<Widget> _pages = [
-    const DashboardPage(), // Menu 0: VPN
-    const StorePage(),     // Menu 1: Toko Paket
-    const ProfilePage(),   // Menu 2: Akun & Referal
+    const DashboardPage(),
+    const StorePage(),
+    const ProfilePage(),
   ];
 
   @override
@@ -49,16 +57,30 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
         backgroundColor: const Color(0xFF1E293B),
-        selectedItemColor: const Color(0xFF06B6D4),
+        selectedItemColor: Colors.cyan,
         unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.shield), label: 'VPN'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Toko'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shield),
+            label: 'VPN / Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.store),
+            label: 'Toko Paket',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Akun & Login',
+          ),
         ],
       ),
     );
   }
 }
+
