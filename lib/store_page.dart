@@ -8,7 +8,7 @@ class StorePage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: Text('Konfirmasi Pembelian', style: const TextStyle(color: Colors.white)),
+        title: const Text('Konfirmasi Pembelian', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
