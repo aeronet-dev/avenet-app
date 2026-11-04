@@ -13,12 +13,25 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _isLoading = false;
   String _statusText = 'Terputus';
 
-  // Simulasi data kuota & masa aktif pengguna (Nanti diambil dari database server)
-  final double _sisaKuotaGB = 0.0; // Saat ini 0 (belum beli paket)
-  final bool _isMasaAktifValid = false; // Belum aktif
+  // Variabel Kuota & Free Trial
+  double _sisaKuotaGB = 0.0; 
+  bool _isMasaAktifValid = false;
+  bool _hasClaimedTrial = false; 
+
+  // Fungsi Klaim Free Trial
+  void _klaimFreeTrial() {
+    setState(() {
+      _hasClaimedTrial = true;
+      _sisaKuotaGB = 0.05; // 50 MB Free Trial
+      _isMasaAktifValid = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Selamat! Kuota Free Trial 50 MB berhasil diklaim.')),
+    );
+  }
 
   Future<void> _toggleVpnConnection() async {
-    // 1. PENGECEKAN GATEKEEPING (Validasi Kuota & Masa Aktif Nyata)
+    // Validasi Gatekeeping
     if (_sisaKuotaGB <= 0 || !_isMasaAktifValid) {
       _tunjukkanDialogBeliPaket();
       return;
@@ -28,7 +41,6 @@ class _DashboardPageState extends State<DashboardPage> {
       _isLoading = true;
     });
 
-    // Simulasi proses koneksi jaringan
     await Future.delayed(const Duration(seconds: 1));
 
     if (!_isConnected) {
@@ -58,7 +70,6 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  // Peringatan jika kuota habis / belum beli paket
   void _tunjukkanDialogBeliPaket() {
     showDialog(
       context: context,
@@ -66,21 +77,13 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: const Color(0xFF1E293B),
         title: const Text('Akses Dibatasi', style: TextStyle(color: Colors.white)),
         content: const Text(
-          'Maaf, sisa kuota Anda habis atau masa aktif telah berakhir. Silakan beli paket internet terlebih dahulu di menu Toko.',
+          'Maaf, sisa kuota Anda habis. Silakan klaim Free Trial di bawah atau beli paket internet di menu Toko.',
           style: TextStyle(color: Colors.grey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Tutup', style: TextStyle(color: Colors.cyan)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
-            onPressed: () {
-              Navigator.pop(context);
-              // Pindah otomatis ke Tab Toko (Index 1) di bawah
-            },
-            child: const Text('Beli Paket Sekarang', style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
@@ -102,7 +105,7 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Informasi Sisa Kuota di Atas Tombol Utama
+              // Informasi Sisa Kuota
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
@@ -114,18 +117,43 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     const Text('Sisa Kuota:', style: TextStyle(color: Colors.grey)),
                     Text(
-                      '$_sisaKuotaGB GB (Habis)',
-                      style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                      _sisaKuotaGB > 0 ? '$_sisaKuotaGB GB (Aktif)' : '0 GB (Habis)',
+                      style: TextStyle(
+                        color: _sisaKuotaGB > 0 ? Colors.greenAccent : Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              
+              // Tombol Klaim Free Trial (Hanya muncul jika belum pernah klaim)
+              if (!_hasClaimedTrial) ...[
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.cyan, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: _klaimFreeTrial,
+                    icon: const Icon(Icons.card_giftcard, color: Colors.cyan, size: 20),
+                    label: const Text(
+                      'Klaim Free Trial 50MB (Khusus Pengguna Baru)',
+                      style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+              
+              const SizedBox(height: 25),
 
               // Tombol Bulat Utama (The Big Button)
               Container(
-                width: 180,
-                height: 180,
+                width: 160,
+                height: 160,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
@@ -145,10 +173,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Icon(
                       _isConnected ? Icons.lock : Icons.lock_open,
-                      size: 50,
+                      size: 45,
                       color: _isConnected ? Colors.greenAccent : Colors.redAccent,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Text(
                       _isConnected ? 'ONLINE' : 'OFFLINE',
                       style: TextStyle(
@@ -160,26 +188,26 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 25),
               Text(
                 _statusText,
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               const Text(
                 'Protokol: Xray / VLESS - TLS',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                style: TextStyle(color: Colors.grey, fontSize: 13),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 35),
               
               // Tombol Hubungkan / Putuskan
               SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isConnected ? Colors.redAccent : Colors.cyan,
