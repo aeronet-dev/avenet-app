@@ -1,86 +1,119 @@
 import 'package:flutter/material.dart';
 
-class StorePage extends StatefulWidget {
-  const StorePage({Key? key}) : super(key: key);
+class StorePage extends StatelessWidget {
+  const StorePage({super.key});
 
-  @override
-  State<StorePage> createState() => _StorePageState();
-}
-
-class _StorePageState extends State<StorePage> {
-  // Menggunakan List dinamis tanpa kurung siku tipe data agar aman dari error web editor
-  final List _packages = [
-    {'id': '1', 'title': 'VIP Weekly', 'quota': 'Unlimited', 'price': 'Rp 15.000'},
-    {'id': '2', 'title': 'VIP Monthly', 'quota': 'Unlimited', 'price': 'Rp 45.000'},
-  ];
-
-      void _buyPackage(String id, String title, String price) {
+  void _showCheckoutDialog(BuildContext context, String namaPaket, String harga) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Pembayaran QRIS'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Paket: $title\nTotal: $price', style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 15),
-              // Simulasi QR Code menggunakan ikon bawaan Flutter agar aman tanpa aset gambar
-              Container(
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text('Konfirmasi Pembelian', style: const TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Paket: $namaPaket', style: const TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
+            Text('Harga: $harga', style: const TextStyle(color: Colors.white, fontSize: 14)),
+            const SizedBox(height: 16),
+            const Text(
+              'Silakan scan QRIS di bawah ini menggunakan aplikasi mobile banking atau e-wallet Anda.',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.qr_code_2, size: 120, color: Colors.black87),
+                child: const Icon(Icons.qr_code_2, size: 120, color: Colors.black),
               ),
-              const SizedBox(height: 10),
-              const Text('Scan QRIS di atas menggunakan GoPay, OVO, Dana, atau m-Banking.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.grey)),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Pembayaran untuk $title berhasil dikonfirmasi!')),
-                );
-              },
-              child: const Text('Cek Pembayaran'),
             ),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Pembayaran Berhasil! Kuota Anda telah ditambahkan.')),
+              );
+            },
+            child: const Text('Simulasi Bayar Sukses', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
-      }
-  
-  
+  }
 
   @override
   Widget build(BuildContext context) {
+    final List> daftarPaket = [
+      {'nama': 'Paket Harian (1 GB)', 'masa': '1 Hari', 'harga': 'Rp 5.000'},
+      {'nama': 'Paket Hemat (5 GB)', 'masa': '7 Hari', 'harga': 'Rp 20.000'},
+      {'nama': 'Paket Reguler (15 GB)', 'masa': '30 Hari', 'harga': 'Rp 45.000'},
+      {'nama': 'Paket VIP Unlimited', 'masa': '30 Hari', 'harga': 'Rp 90.000'},
+    ];
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Store')),
+      backgroundColor: const Color(0xFF101927),
+      appBar: AppBar(
+        title: const Text('Toko Paket Avenet', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF101927),
+        elevation: 0,
+      ),
       body: ListView.builder(
-        itemCount: _packages.length,
+        padding: const EdgeInsets.all(16.0),
+        itemCount: daftarPaket.length,
         itemBuilder: (context, index) {
-          final pkg = _packages[index];
-          return Card(
-            margin: const EdgeInsets.all(8.0),
-            child: ListTile(
-              title: Text(pkg['title'].toString()),
-              subtitle: Text('Kuota: ${pkg['quota']} - ${pkg['price']}'),
-              trailing: ElevatedButton(
-                onPressed: () => _buyPackage(
-                  pkg['id'].toString(),
-                  pkg['title'].toString(),
-                  pkg['price'].toString(),
+          final paket = daftarPaket[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.cyan.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      paket['nama']!,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Masa Aktif: ${paket['masa']}',
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      paket['harga']!,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.greenAccent),
+                    ),
+                  ],
                 ),
-                child: const Text('Beli'),
-              ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.cyan,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () => _showCheckoutDialog(context, paket['nama']!, paket['harga']!),
+                  child: const Text('Beli', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                ),
+              ],
             ),
           );
         },
