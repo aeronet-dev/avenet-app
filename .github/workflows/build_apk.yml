@@ -26,13 +26,10 @@ jobs:
         cache: true
 
     - name: Clean and Get Dependencies
-      run: |
-        flutter clean
-        flutter pub get
+      run: flutter clean && flutter pub get
 
     - name: Regenerate Android Platform Files
-      run: +flutter create . --platforms=android --project-name=avenet_app
-        
+      run: flutter create . --platforms=android --project-name=avenet_app
 
     - name: Build Release APK
       run: flutter build apk --release --no-pub
