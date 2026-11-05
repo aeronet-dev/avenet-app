@@ -145,20 +145,19 @@ class _StorePageState extends State<StorePage> {
                         style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  // Diperbaiki menggunakan Expanded agar harga tidak keluar garis
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
-                          item['title'] as String,
+                          item['title'].toString(),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        item['price'] as String,
+                        item['price'].toString(),
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
                       ),
                     ],
