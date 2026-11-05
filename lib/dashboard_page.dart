@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'store_page.dart';
 import 'profile_page.dart';
+import 'api_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -56,8 +57,6 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
   String _statusText = 'Terputus';
   int _secondsConnected = 0;
   Timer? _timer;
-  double _sisaKuota = 0.0;
-  bool _isFreeTrialClaimed = false;
 
   void _startConnectionStats() {
     _secondsConnected = 0;
@@ -81,16 +80,17 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
 
   void _claimFreeTrial() {
     setState(() {
-      _isFreeTrialClaimed = true;
-      _sisaKuota += 0.05; // Tambah 50 MB
+      bool success = ApiService.claimFreeTrial();
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil klaim Free Trial 50MB!')),
+        );
+      }
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Berhasil klaim Free Trial 50MB!')),
-    );
   }
 
   void _toggleConnection() {
-    if (_sisaKuota <= 0) {
+    if (ApiService.sisaKuota <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kuota habis! Silakan isi ulang di menu Toko atau klaim Free Trial.')),
       );
@@ -129,14 +129,13 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Judul Halaman yang Bersih
             const Text(
               'Avenet VPN',
               style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
-            // Kotak Sisa Kuota
+            // Kotak Sisa Kuota (Sinkron dengan ApiService)
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -149,9 +148,9 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
                 children: [
                   const Text('Sisa Kuota:', style: TextStyle(color: Colors.grey, fontSize: 14)),
                   Text(
-                    '${_sisaKuota.toStringAsFixed(2)} GB (${_sisaKuota > 0 ? "Aktif" : "Habis"})',
+                    '${ApiService.sisaKuota.toStringAsFixed(2)} GB (${ApiService.sisaKuota > 0 ? "Aktif" : "Habis"})',
                     style: TextStyle(
-                      color: _sisaKuota > 0 ? Colors.greenAccent : Colors.redAccent,
+                      color: ApiService.sisaKuota > 0 ? Colors.greenAccent : Colors.redAccent,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -162,7 +161,7 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
             const SizedBox(height: 15),
 
             // Tombol Klaim Free Trial
-            if (!_isFreeTrialClaimed)
+            if (!ApiService.isFreeTrialClaimed)
               InkWell(
                 onTap: _claimFreeTrial,
                 child: Container(
@@ -187,7 +186,7 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
                   ),
                 ),
               ),
-            if (!_isFreeTrialClaimed) const SizedBox(height: 25),
+            if (!ApiService.isFreeTrialClaimed) const SizedBox(height: 25),
 
             // Tombol Bulat Utama (The Big Button)
             Center(
@@ -244,7 +243,7 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
             ),
             const SizedBox(height: 20),
 
-            // WIDGET SPEEDOMETER & DURASI (Hanya tampil saat ONLINE)
+            // WIDGET SPEEDOMETER & DURASI
             if (_isConnected) ...[
               Container(
                 padding: const EdgeInsets.all(16),
