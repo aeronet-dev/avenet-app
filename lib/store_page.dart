@@ -8,7 +8,6 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
-  // Daftar Paket Voucher lengkap dengan Durasi, Kecepatan, dan Harga
   final List> packages = [
     {
       'id': 'v_2h',
@@ -25,7 +24,7 @@ class _StorePageState extends State<StorePage> {
       'duration': '7 Jam',
       'speed': '5 Mbps',
       'price': 'Rp 2.000',
-      'isPopular': true, // Badge terpopuler
+      'isPopular': true,
       'features': ['Unlimited Data (Tanpa Kuota)', 'Kecepatan Ngebut (5 Mbps)', 'Aktif 7 Jam penuh'],
     },
     {
@@ -168,7 +167,7 @@ class _StorePageState extends State<StorePage> {
                       const SizedBox(width: 16),
                       const Icon(Icons.speed, size: 16, color: Colors.blue),
                       const SizedBox(width: 4),
-                     Text('Speed: ${item['speed']}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                      Text('Speed: ${item['speed']}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const Divider(height: 24),
