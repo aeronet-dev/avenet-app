@@ -1,6 +1,6 @@
 class ApiService {
   // Data simulasi akun pengguna
-  static double sisaKuota = 0.0; // dalam GB
+  static double Masa Aktif: habis; // Belum Aktif
   static bool isFreeTrialClaimed = false;
   static String referralCode = 'AVENET2026';
   static int connectedDevices = 0;
@@ -28,12 +28,12 @@ class ApiService {
     }
   }
 
-  // Fungsi untuk klaim Free Trial 50MB
+  // Fungsi untuk klaim Free Trial 30Menit
   static bool claimFreeTrial() {
     if (!isFreeTrialClaimed) {
       isFreeTrialClaimed = true;
-      sisaKuota += 0.05; // Tambah 50 MB
-      addAdminLog("Pengguna klaim Free Trial 50MB");
+      sisawaktu += 30.00; // Tambah 30 Menit
+      addAdminLog("Pengguna klaim Free Trial 30Menit");
       return true;
     }
     return false;
