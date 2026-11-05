@@ -8,7 +8,8 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
-  final List> packages = [
+  // Versi aman tanpa simbol tipe data kompleks agar tidak error di GitHub
+  final packages = [
     {
       'id': 'v_2h',
       'title': 'Voucher Kilat 2 Jam',
@@ -149,11 +150,11 @@ class _StorePageState extends State<StorePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        item['title'],
+                        item['title'] as String,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        item['price'],
+                        item['price'] as String,
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
                       ),
                     ],
@@ -173,14 +174,14 @@ class _StorePageState extends State<StorePage> {
                   const Divider(height: 24),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: (item['features'] as List<String>).map((feat) {
+                    children: (item['features'] as List).map((feat) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
                             const Icon(Icons.check_circle_outline, size: 16, color: Colors.green),
                             const SizedBox(width: 8),
-                            Text(feat, style: const TextStyle(fontSize: 13)),
+                            Text(feat.toString(), style: const TextStyle(fontSize: 13)),
                           ],
                         ),
                       );
