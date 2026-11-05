@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'store_page.dart';
 import 'profile_page.dart';
@@ -56,7 +57,26 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
   bool _isConnected = false;
   String _statusText = 'Terputus';
   int _secondsConnected = 0;
+  int _pingMs = 0;
   Timer? _timer;
+  Timer? _pingTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkServerPing();
+    // Periksa ping berkala setiap 5 detik
+    _pingTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _checkServerPing();
+    });
+  }
+
+  void _checkServerPing() {
+    // Simulasi pengecekan ping jaringan server (antara 15ms - 60ms)
+    setState(() {
+      _pingMs = 15 + Random().nextInt(45);
+    });
+  }
 
   void _startConnectionStats() {
     _secondsConnected = 0;
@@ -90,6 +110,13 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
   }
 
   void _toggleConnection() {
+    if (ApiService.isServerMaintenance) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Server sedang dalam pemeliharaan (Maintenance). Koneksi ditolak.')),
+      );
+      return;
+    }
+
     if (ApiService.sisaKuota <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kuota habis! Silakan isi ulang di menu Toko atau klaim Free Trial.')),
@@ -118,24 +145,75 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
   @override
   void dispose() {
     _timer?.cancel();
+    _pingTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isLowQuota = ApiService.sisaKuota > 0 && ApiService.sisaKuota <= 0.1;
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Avenet VPN',
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Avenet VPN',
+                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                // Indikator Ping Server Real-time
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _pingMs < 40 ? Colors.greenAccent : Colors.orangeAccent),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.signal_cellular_alt, size: 14, color: _pingMs < 40 ? Colors.greenAccent : Colors.orangeAccent),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_pingMs ms',
+                        style: TextStyle(color: _pingMs < 40 ? Colors.greenAccent : Colors.orangeAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
-            // Kotak Sisa Kuota (Sinkron dengan ApiService)
+            // Peringatan Kuota Menipis
+            if (isLowQuota)
+              Container(
+                margin: const EdgeInsets.only(bottom: 15),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.redAccent),
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Peringatan: Sisa kuota Anda hampir habis! Segera lakukan pengisian ulang di menu Toko.',
+                        style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Kotak Sisa Kuota
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
