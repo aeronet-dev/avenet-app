@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
+import 'vpn_service.dart';
 import 'store_page.dart';
 import 'profile_page.dart';
 
@@ -52,7 +53,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-// Tampilan Halaman Utama VPN
 class VpnHomeTab extends StatefulWidget {
   const VpnHomeTab({super.key});
 
@@ -61,10 +61,59 @@ class VpnHomeTab extends StatefulWidget {
 }
 
 class _VpnHomeTabState extends State<VpnHomeTab> {
-  bool isConnected = false;
+  void _toggleVpn() async {
+    if (VpnService.isConnected) {
+      VpnService.disconnect();
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('VPN Diputus.'), backgroundColor: Colors.grey),
+      );
+    } else {
+      if (ApiService.sisaWaktu <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Masa aktif habis! Isi ulang di menu Toko atau klaim Free Trial.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      bool success = await VpnService.connect(
+        () {
+          // Callback saat menit berkurang (Update UI)
+          if (mounted) setState(() {});
+        },
+        () {
+          // Callback saat waktu mendadak habis
+          if (mounted) {
+            setState(() {});
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Masa aktif VPN habis! Koneksi terputus.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+      );
+
+      if (success) {
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Menghubungkan ke Server VLESS Avenet...'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    bool isConnected = VpnService.isConnected;
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
@@ -98,7 +147,7 @@ class _VpnHomeTabState extends State<VpnHomeTab> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Status Sisa Waktu Aktif
+            // Status Sisa Waktu
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -112,10 +161,7 @@ class _VpnHomeTabState extends State<VpnHomeTab> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Masa Aktif:',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
+                  const Text('Masa Aktif:', style: TextStyle(color: Colors.white70, fontSize: 14)),
                   Text(
                     ApiService.sisaWaktu > 0 
                         ? '${ApiService.sisaWaktu.toStringAsFixed(0)} Menit Aktif' 
@@ -131,24 +177,18 @@ class _VpnHomeTabState extends State<VpnHomeTab> {
             ),
             const SizedBox(height: 12),
 
-            // Tombol Klaim Free Trial 30 Menit
+            // Tombol Klaim Free Trial
             InkWell(
               onTap: () {
                 setState(() {
                   bool success = ApiService.claimFreeTrial();
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Berhasil klaim Free Trial 30 Menit!'),
-                        backgroundColor: Colors.green,
-                      ),
+                      const SnackBar(content: Text('Berhasil klaim Free Trial 30 Menit!'), backgroundColor: Colors.green),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Free Trial sudah pernah diklaim!'),
-                        backgroundColor: Colors.orange,
-                      ),
+                      const SnackBar(content: Text('Free Trial sudah pernah diklaim!'), backgroundColor: Colors.orange),
                     );
                   }
                 });
@@ -168,15 +208,9 @@ class _VpnHomeTabState extends State<VpnHomeTab> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Klaim Free Trial 30 Menit',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
+                          Text('Klaim Free Trial 30 Menit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           SizedBox(height: 2),
-                          Text(
-                            'Khusus Pengguna Baru (Tanpa Kuota)',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
+                          Text('Khusus Pengguna Baru (Tanpa Kuota)', style: TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -187,7 +221,7 @@ class _VpnHomeTabState extends State<VpnHomeTab> {
             ),
             const Spacer(),
 
-            // Indikator Status VPN Bulat di Tengah
+            // Indikator VPN
             Center(
               child: Container(
                 width: 180,
@@ -222,40 +256,21 @@ class _VpnHomeTabState extends State<VpnHomeTab> {
             ),
             const SizedBox(height: 16),
             Text(
-              isConnected ? 'Terhubung ke Server Cepat' : 'Terputus',
+              isConnected ? 'Terhubung ke VPS VLESS Ubuntu' : 'Terputus',
               style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const Spacer(),
 
-            // Tombol Hubungkan / Putuskan
+            // Tombol Utama
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.cyan,
+                  backgroundColor: isConnected ? Colors.redAccent : Colors.cyan,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                onPressed: () {
-                  if (ApiService.sisaWaktu <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Masa aktif habis! Silakan isi ulang di menu Toko atau klaim Free Trial.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  } else {
-                    setState(() {
-                      isConnected = !isConnected;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(isConnected ? 'Menghubungkan ke server VPN...' : 'VPN diputus.'),
-                        backgroundColor: isConnected ? Colors.green : Colors.grey,
-                      ),
-                    );
-                  }
-                },
+                onPressed: _toggleVpn,
                 child: Text(
                   isConnected ? 'Putuskan Sambungan' : 'Hubungkan Sekarang',
                   style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
