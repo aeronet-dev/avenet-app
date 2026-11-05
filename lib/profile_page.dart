@@ -279,7 +279,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ApiService.adminLogs.isEmpty
-                          const Text('Belum ada aktivitas tercatat.', style: TextStyle(color: Colors.grey, fontSize: 12))
+                          ? const Text('Belum ada aktivitas tercatat.', style: TextStyle(color: Colors.grey, fontSize: 12))
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: ApiService.adminLogs
@@ -290,6 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   .toList(),
                             ),
                     ),
+
                   ],
                 ),
               ),
