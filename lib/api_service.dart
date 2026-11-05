@@ -4,7 +4,7 @@ class ApiService {
 
   // Variabel Pendukung Dashboard & Free Trial
   static bool isFreeTrialClaimed = false;
-  static double sisaKuota = 0.0; // Kompatibilitas cadangan
+  static double sisaKuota = 0.0;
   static double totalServerQuota = 100.0;
 
   // Fungsi Durasi Waktu & Kuota
@@ -47,6 +47,6 @@ class ApiService {
   }
 
   static bool verifyAdminPin(String pin) {
-    return pin == '1234'; // PIN default admin
+    return pin == '1234';
   }
 }
