@@ -8,7 +8,6 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
-  // Versi aman tanpa simbol tipe data kompleks agar tidak error di GitHub
   final packages = [
     {
       'id': 'v_2h',
@@ -50,7 +49,7 @@ class _StorePageState extends State<StorePage> {
       'id': 'v_30d',
       'title': 'Voucher Bulanan VIP',
       'duration': '30 Hari',
-      'speed': '10 Mbps (Full Speed)',
+      'speed': '10 Mbps',
       'price': 'Rp 75.000',
       'isPopular': false,
       'features': ['Unlimited Data (Tanpa Kuota)', 'Kecepatan Prioritas (10 Mbps)', 'Aktif 30 Hari penuh'],
@@ -146,32 +145,48 @@ class _StorePageState extends State<StorePage> {
                         style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
+                  // Diperbaiki menggunakan Expanded agar harga tidak keluar garis
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        item['title'] as String,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          item['title'] as String,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         item['price'] as String,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 4,
                     children: [
-                      const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text('Durasi: ${item['duration']}', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
-                      const SizedBox(width: 16),
-                      const Icon(Icons.speed, size: 16, color: Colors.blue),
-                      const SizedBox(width: 4),
-                      Text('Speed: ${item['speed']}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text('Durasi: ${item['duration']}', style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.speed, size: 14, color: Colors.blue),
+                          const SizedBox(width: 4),
+                          Text('Speed: ${item['speed']}', style: const TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ],
                   ),
-                  const Divider(height: 24),
+                  const Divider(height: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: (item['features'] as List).map((feat) {
@@ -179,15 +194,15 @@ class _StorePageState extends State<StorePage> {
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle_outline, size: 16, color: Colors.green),
-                            const SizedBox(width: 8),
-                            Text(feat.toString(), style: const TextStyle(fontSize: 13)),
+                            const Icon(Icons.check_circle_outline, size: 14, color: Colors.green),
+                            const SizedBox(width: 6),
+                            Text(feat.toString(), style: const TextStyle(fontSize: 12)),
                           ],
                         ),
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
