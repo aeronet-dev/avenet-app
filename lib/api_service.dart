@@ -28,7 +28,7 @@ class ApiService {
     }
   }
 
-  // Fungsi untuk klaim Free Trial 30Menit
+  // Fungsi untuk klaim free Trial 30Menit
   static bool claimFreeTrial() {
     if (!isFreeTrialClaimed) {
       isFreeTrialClaimed = true;
