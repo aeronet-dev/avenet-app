@@ -1,405 +1,121 @@
-import 'dart:async';
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'store_page.dart';
-import 'profile_page.dart';
-import 'api_service.dart';
-
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
-
-  @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage> {
-  int _currentIndex = 0;
-
-  final List<Widget> _pages = const [
-    DashboardHomeTab(),
-    StorePage(),
-    ProfilePage(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF101927),
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        backgroundColor: const Color(0xFF1E293B),
-        selectedItemColor: Colors.cyan,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.shield), label: 'VPN'),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Toko'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
-        ],
+// 1. Bagian Kotak Status Masa Aktif Waktu (Menggantikan Sisa Kuota GB)
+Container(
+  padding: const EdgeInsets.all(16),
+  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  decoration: BoxDecoration(
+    color: const Color(0xFF1E293B),
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(
+      color: ApiService.sisaWaktu > 0 ? Colors.greenAccent : Colors.redAccent,
+      width: 1.5,
+    ),
+  ),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      const Text(
+        'Masa Aktif:',
+        style: TextStyle(color: Colors.white70, fontSize: 14),
       ),
-    );
-  }
-}
+      Text(
+        ApiService.sisaWaktu > 0 
+            ? '${ApiService.sisaWaktu.toStringAsFixed(0)} Menit Aktif' 
+            : 'Habis / Belum Aktif',
+        style: TextStyle(
+          color: ApiService.sisaWaktu > 0 ? Colors.greenAccent : Colors.redAccent,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ],
+  ),
+),
 
-class DashboardHomeTab extends StatefulWidget {
-  const DashboardHomeTab({super.key});
-
-  @override
-  State<DashboardHomeTab> createState() => _DashboardHomeTabState();
-}
-
-class _DashboardHomeTabState extends State<DashboardHomeTab> {
-  bool _isConnected = false;
-  String _statusText = 'Terputus';
-  int _secondsConnected = 0;
-  int _pingMs = 0;
-  Timer? _timer;
-  Timer? _pingTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkServerPing();
-    // Periksa ping berkala setiap 5 detik
-    _pingTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      _checkServerPing();
-    });
-  }
-
-  void _checkServerPing() {
-    // Simulasi pengecekan ping jaringan server (antara 15ms - 60ms)
-    setState(() {
-      _pingMs = 15 + Random().nextInt(45);
-    });
-  }
-
-  void _startConnectionStats() {
-    _secondsConnected = 0;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _secondsConnected++;
-      });
-    });
-  }
-
-  void _stopConnectionStats() {
-    _timer?.cancel();
-    _secondsConnected = 0;
-  }
-
-  String _formatDuration(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final secs = (seconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$secs';
-  }
-
-  void _claimFreeTrial() {
+// 2. Bagian Tombol Klaim Free Trial 30 Menit
+InkWell(
+  onTap: () {
     setState(() {
       bool success = ApiService.claimFreeTrial();
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Berhasil klaim Free Trial 50MB!')),
-        );
-      }
-    });
-  }
-
-  void _toggleConnection() {
-    if (ApiService.isServerMaintenance) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Server sedang dalam pemeliharaan (Maintenance). Koneksi ditolak.')),
-      );
-      return;
-    }
-
-    if (ApiService.sisaKuota <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kuota habis! Silakan isi ulang di menu Toko atau klaim Free Trial.')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isConnected = !_isConnected;
-      if (_isConnected) {
-        _statusText = 'Terhubung (Protokol: Xray / VLESS - TLS)';
-        _startConnectionStats();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Koneksi VPN berhasil diaktifkan!')),
+          const SnackBar(
+            content: Text('Berhasil klaim Free Trial 30 Menit!'),
+            backgroundColor: Colors.green,
+          ),
         );
       } else {
-        _statusText = 'Terputus';
-        _stopConnectionStats();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Koneksi VPN diputus.')),
+          const SnackBar(
+            content: Text('Free Trial sudah pernah diklaim!'),
+            backgroundColor: Colors.orange,
+          ),
         );
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _pingTimer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    bool isLowQuota = ApiService.sisaKuota > 0 && ApiService.sisaKuota <= 0.1;
-
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Avenet VPN',
-                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                // Indikator Ping Server Real-time
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: _pingMs < 40 ? Colors.greenAccent : Colors.orangeAccent),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.signal_cellular_alt, size: 14, color: _pingMs < 40 ? Colors.greenAccent : Colors.orangeAccent),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$_pingMs ms',
-                        style: TextStyle(color: _pingMs < 40 ? Colors.greenAccent : Colors.orangeAccent, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Peringatan Kuota Menipis
-            if (isLowQuota)
-              Container(
-                margin: const EdgeInsets.only(bottom: 15),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.redAccent),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Peringatan: Sisa kuota Anda hampir habis! Segera lakukan pengisian ulang di menu Toko.',
-                        style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
+  },
+  child: Container(
+    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.cyan, width: 1.5),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: const Row(
+      children: [
+        Icon(Icons.card_giftcard, color: Colors.cyan),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Klaim Free Trial 30 Menit',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
-
-            // Kotak Sisa Kuota
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.cyan.withOpacity(0.3)),
+              SizedBox(height: 2),
+              Text(
+                'Khusus Pengguna Baru (Tanpa Kuota)',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Sisa Kuota:', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                  Text(
-                    '${ApiService.sisaKuota.toStringAsFixed(2)} GB (${ApiService.sisaKuota > 0 ? "Aktif" : "Habis"})',
-                    style: TextStyle(
-                      color: ApiService.sisaKuota > 0 ? Colors.greenAccent : Colors.redAccent,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-
-            // Tombol Klaim Free Trial
-            if (!ApiService.isFreeTrialClaimed)
-              InkWell(
-                onTap: _claimFreeTrial,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.cyan),
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.card_giftcard, color: Colors.cyan, size: 24),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Klaim Free Trial 30menit (Khusus Pengguna Baru)',
-                          style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                      ),
-                      Icon(Icons.arrow_forward_ios, color: Colors.cyan, size: 16),
-                    ],
-                  ),
-                ),
-              ),
-            if (!ApiService.isFreeTrialClaimed) const SizedBox(height: 25),
-
-            // Tombol Bulat Utama (The Big Button)
-            Center(
-              child: GestureDetector(
-                onTap: _toggleConnection,
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _isConnected ? Colors.greenAccent : Colors.redAccent,
-                      width: 4,
-                    ),
-                    color: const Color(0xFF1E293B),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (_isConnected ? Colors.greenAccent : Colors.redAccent).withOpacity(0.3),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _isConnected ? Icons.lock : Icons.lock_open,
-                        size: 50,
-                        color: _isConnected ? Colors.greenAccent : Colors.redAccent,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _isConnected ? 'ONLINE' : 'OFFLINE',
-                        style: TextStyle(
-                          color: _isConnected ? Colors.greenAccent : Colors.redAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            Center(
-              child: Text(
-                _statusText,
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // WIDGET SPEEDOMETER & DURASI
-            if (_isConnected) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.greenAccent.withOpacity(0.4)),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.timer, color: Colors.greenAccent, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Durasi: ${_formatDuration(_secondsConnected)}',
-                          style: const TextStyle(color: Colors.greenAccent, fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const Divider(color: Colors.grey, height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        Row(
-                          children: [
-                            Icon(Icons.download, color: Colors.cyan, size: 20),
-                            SizedBox(width: 6),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Download', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                Text('2.3 MB/s', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(Icons.upload, color: Colors.orangeAccent, size: 20),
-                            SizedBox(width: 6),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Upload', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                Text('400 KB/s', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
             ],
-
-            // Tombol Hubungkan / Putuskan di Bawah
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isConnected ? Colors.redAccent : Colors.cyan,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: _toggleConnection,
-                child: Text(
-                  _isConnected ? 'Putuskan Koneksi' : 'Hubungkan Sekarang',
-                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-}
+        Icon(Icons.arrow_forward_ios, color: Colors.cyan, size: 16),
+      ],
+    ),
+  ),
+),
+
+// 3. Logika Tombol "Hubungkan Sekarang"
+ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.cyan,
+    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+  onPressed: () {
+    if (ApiService.sisaWaktu <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Masa aktif habis! Silakan isi ulang di menu Toko atau klaim Free Trial.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      // Logika menghubungkan VPN jika waktu masih ada
+      setState(() {
+        // Ubah status koneksi jadi terhubung
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Menghubungkan ke server VPN...'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  },
+  child: const Text(
+    'Hubungkan Sekarang',
+    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+  ),
+),
