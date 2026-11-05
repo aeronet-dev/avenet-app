@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'api_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -24,6 +25,24 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  // Fungsi membuka WhatsApp CS
+  Future<void> _openWhatsAppCS() async {
+    final Uri whatsappUri = Uri.parse('https://wa.me/6281234567890?text=Halo%20Admin%20Avenet,%20saya%20ingin%20konfirmasi%20pembayaran%20dan%20kendala%20aplikasi.');
+    try {
+      if (await canLaunchUrl(whatsappUri)) {
+        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak dapat membuka WhatsApp.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   // Dialog Akses PIN Admin
@@ -103,145 +122,176 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
-            return Padding(
+            return Container(
               padding: EdgeInsets.only(
                 top: 20,
                 left: 20,
                 right: 20,
                 bottom: MediaQuery.of(context).viewInsets.bottom + 20,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.security, color: Colors.greenAccent),
-                          SizedBox(width: 8),
-                          Text(
-                            'Internal Admin Panel',
-                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.grey),
-                        onPressed: () => Navigator.pop(context),
-                      )
-                    ],
-                  ),
-                  const Divider(color: Colors.grey),
-                  const SizedBox(height: 10),
-
-                  // Statistik Server Global
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        const Row(
                           children: [
-                            const Text('Sisa Kapasitas Server:', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                            Text('${ApiService.totalServerQuota.toStringAsFixed(1)} GB', style: const TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Status Maintenance Server:', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                            Icon(Icons.security, color: Colors.greenAccent),
+                            SizedBox(width: 8),
                             Text(
-                              ApiService.isServerMaintenance ? 'AKTIF (Sistem Mati)' : 'NORMAL (Layanan On)',
-                              style: TextStyle(
-                                color: ApiService.isServerMaintenance ? Colors.redAccent : Colors.greenAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
+                              'Internal Admin Panel',
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.grey),
+                          onPressed: () => Navigator.pop(context),
+                        )
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const Divider(color: Colors.grey),
+                    const SizedBox(height: 10),
 
-                  // Kontrol Tindakan Admin
-                  const Text('Aksi Pengelola:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-
-                  // Inject Kuota Darurat
-                  ListTile(
-                    tileColor: const Color(0xFF1E293B),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    leading: const Icon(Icons.add_chart, color: Colors.cyan),
-                    title: const Text('Inject Kuota +10 GB (Pengguna)', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    subtitle: const Text('Isi ulang saldo kuota mandiri secara langsung', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                    onTap: () {
-                      setState(() {
-                        ApiService.addQuota(10.0);
-                      });
-                      setModalState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Berhasil menambahkan +10 GB ke akun ini!')),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Reset Status Free Trial
-                  ListTile(
-                    tileColor: const Color(0xFF1E293B),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    leading: const Icon(Icons.refresh, color: Colors.orangeAccent),
-                    title: const Text('Reset Status Free Trial', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    subtitle: const Text('Memungkinkan pengguna mengeklaim trial kembali', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                    onTap: () {
-                      setState(() {
-                        ApiService.isFreeTrialClaimed = false;
-                      });
-                      setModalState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Status Free Trial berhasil di-reset!')),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Switch Mode Maintenance
-                  ListTile(
-                    tileColor: const Color(0xFF1E293B),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    leading: Icon(
-                      Icons.power_settings_new,
-                      color: ApiService.isServerMaintenance ? Colors.greenAccent : Colors.redAccent,
-                    ),
-                    title: Text(
-                      ApiService.isServerMaintenance ? 'Matikan Mode Maintenance' : 'Aktifkan Mode Maintenance',
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                    subtitle: const Text('Mengunci koneksi seluruh pengguna', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                    onTap: () {
-                      setState(() {
-                        ApiService.isServerMaintenance = !ApiService.isServerMaintenance;
-                      });
-                      setModalState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            ApiService.isServerMaintenance ? 'Mode Maintenance Aktif.' : 'Mode Maintenance Dimatikan.',
+                    // Statistik Server Global
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Sisa Kapasitas Server:', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                              Text('${ApiService.totalServerQuota.toStringAsFixed(1)} GB', style: const TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold)),
+                            ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Status Maintenance Server:', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                              Text(
+                                ApiService.isServerMaintenance ? 'AKTIF (Sistem Mati)' : 'NORMAL (Layanan On)',
+                                style: TextStyle(
+                                  color: ApiService.isServerMaintenance ? Colors.redAccent : Colors.greenAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Kontrol Tindakan Admin
+                    const Text('Aksi Pengelola:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+
+                    // Inject Kuota Darurat
+                    ListTile(
+                      tileColor: const Color(0xFF1E293B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      leading: const Icon(Icons.add_chart, color: Colors.cyan),
+                      title: const Text('Inject Kuota +10 GB (Pengguna)', style: TextStyle(color: Colors.white, fontSize: 14)),
+                      subtitle: const Text('Isi ulang saldo kuota mandiri secara langsung', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                      onTap: () {
+                        setState(() {
+                          ApiService.addQuota(10.0);
+                          ApiService.addAdminLog("Admin inject kuota +10 GB");
+                        });
+                        setModalState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Berhasil menambahkan +10 GB ke akun ini!')),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Reset Status Free Trial
+                    ListTile(
+                      tileColor: const Color(0xFF1E293B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      leading: const Icon(Icons.refresh, color: Colors.orangeAccent),
+                      title: const Text('Reset Status Free Trial', style: TextStyle(color: Colors.white, fontSize: 14)),
+                      subtitle: const Text('Memungkinkan pengguna mengeklaim trial kembali', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                      onTap: () {
+                        setState(() {
+                          ApiService.isFreeTrialClaimed = false;
+                          ApiService.addAdminLog("Admin mereset status Free Trial");
+                        });
+                        setModalState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Status Free Trial berhasil di-reset!')),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Switch Mode Maintenance
+                    ListTile(
+                      tileColor: const Color(0xFF1E293B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      leading: Icon(
+                        Icons.power_settings_new,
+                        color: ApiService.isServerMaintenance ? Colors.greenAccent : Colors.redAccent,
+                      ),
+                      title: Text(
+                        ApiService.isServerMaintenance ? 'Matikan Mode Maintenance' : 'Aktifkan Mode Maintenance',
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                      subtitle: const Text('Mengunci koneksi seluruh pengguna', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                      onTap: () {
+                        setState(() {
+                          ApiService.isServerMaintenance = !ApiService.isServerMaintenance;
+                          ApiService.addAdminLog(ApiService.isServerMaintenance ? "Server diatur ke Mode Maintenance" : "Server dinormalkan kembali");
+                        });
+                        setModalState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              ApiService.isServerMaintenance ? 'Mode Maintenance Aktif.' : 'Mode Maintenance Dimatikan.',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Riwayat Log Aktivitas Admin
+                    const Text('Riwayat Aktivitas Admin:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ApiService.adminLogs.isEmpty
+                          const Text('Belum ada aktivitas tercatat.', style: TextStyle(color: Colors.grey, fontSize: 12))
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: ApiService.adminLogs
+                                  .map((log) => Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                        child: Text(log, style: const TextStyle(color: Colors.greenAccent, fontSize: 11, fontFamily: 'monospace')),
+                                      ))
+                                  .toList(),
+                            ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -304,6 +354,37 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Tombol Bantuan / Hubungi WhatsApp CS
+          InkWell(
+            onTap: _openWhatsAppCS,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.greenAccent.withOpacity(0.5)),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.support_agent, color: Colors.greenAccent, size: 28),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Pusat Bantuan / CS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        SizedBox(height: 2),
+                        Text('Hubungi admin via WhatsApp untuk kendala', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios, color: Colors.greenAccent, size: 16),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
