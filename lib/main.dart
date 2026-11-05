@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dashboard_page.dart';
+import 'welcome_page.dart'; // Pastikan mengarah ke halaman sambutan/login awal
 
 void main() {
   runApp(const AvenetApp());
@@ -18,7 +18,7 @@ class AvenetApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF101927),
         primarySwatch: Colors.cyan,
       ),
-      home: const DashboardPage(),
+      home: const WelcomePage(), // Halaman pertama kali aplikasi dibuka
     );
   }
 }
