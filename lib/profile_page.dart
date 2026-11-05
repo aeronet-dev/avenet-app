@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'api_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -27,22 +26,32 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Fungsi membuka WhatsApp CS
-  Future<void> _openWhatsAppCS() async {
-    final Uri whatsappUri = Uri.parse('https://wa.me/6281234567890?text=Halo%20Admin%20Avenet,%20saya%20ingin%20konfirmasi%20pembayaran%20dan%20kendala%20aplikasi.');
-    try {
-      if (await canLaunchUrl(whatsappUri)) {
-        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tidak dapat membuka WhatsApp.')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+  // Informasi Kontak CS WhatsApp Admin
+  void _showWhatsAppInfo() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Row(
+          children: [
+            Icon(Icons.support_agent, color: Colors.greenAccent),
+            SizedBox(width: 8),
+            Text('Pusat Bantuan CS', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+        content: const Text(
+          'Silakan hubungi Admin Avenet melalui nomor WhatsApp resmi untuk konfirmasi pembayaran dan kendala:\n\n📞 0812-3456-7890',
+          style: TextStyle(color: Colors.grey, fontSize: 14),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   // Dialog Akses PIN Admin
@@ -360,7 +369,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
           // Tombol Bantuan / Hubungi WhatsApp CS
           InkWell(
-            onTap: _openWhatsAppCS,
+            onTap: _showWhatsAppInfo,
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
