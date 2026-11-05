@@ -1,38 +1,18 @@
 import 'package:flutter/material.dart';
+import 'api_service.dart';
 
 class StorePage extends StatelessWidget {
   const StorePage({super.key});
 
-  void _showCheckoutDialog(BuildContext context, String namaPaket, String harga) {
+  void _buyPackage(BuildContext context, String title, double gbAmount, int price) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('Konfirmasi Pembelian', style: TextStyle(color: Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Paket: $namaPaket', style: const TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            Text('Harga: $harga', style: const TextStyle(color: Colors.white, fontSize: 14)),
-            const SizedBox(height: 16),
-            const Text(
-              'Silakan scan QRIS di bawah ini menggunakan aplikasi mobile banking atau e-wallet Anda.',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.qr_code_2, size: 120, color: Colors.black),
-              ),
-            ),
-          ],
+        title: Text('Konfirmasi Pembelian', style: const TextStyle(color: Colors.white)),
+        content: Text(
+          'Apakah Anda yakin ingin membeli $title seharga Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}?',
+          style: const TextStyle(color: Colors.grey),
         ),
         actions: [
           TextButton(
@@ -42,12 +22,15 @@ class StorePage extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
             onPressed: () {
+              // Tambah kuota ke ApiService
+              ApiService.addQuota(gbAmount);
               Navigator.pop(context);
+              
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pembayaran Berhasil! Kuota Anda telah ditambahkan.')),
+                SnackBar(content: Text('Pembelian $title Berhasil! Kuota +$gbAmount GB ditambahkan.')),
               );
             },
-            child: const Text('Simulasi Bayar Sukses', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            child: const Text('Bayar via QRIS', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -56,67 +39,52 @@ class StorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final daftarPaket = [
-      {'nama': 'Paket Harian (1 GB)', 'masa': '1 Hari', 'harga': 'Rp 5.000'},
-      {'nama': 'Paket Hemat (5 GB)', 'masa': '7 Hari', 'harga': 'Rp 20.000'},
-      {'nama': 'Paket Reguler (15 GB)', 'masa': '30 Hari', 'harga': 'Rp 45.000'},
-      {'nama': 'Paket VIP Unlimited', 'masa': '30 Hari', 'harga': 'Rp 90.000'},
-    ];
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF101927),
-      appBar: AppBar(
-        title: const Text('Toko Paket Avenet', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF101927),
-        elevation: 0,
-      ),
-      body: ListView.builder(
+    return SafeArea(
+      child: ListView(
         padding: const EdgeInsets.all(16.0),
-        itemCount: daftarPaket.length,
-        itemBuilder: (context, index) {
-          final paket = daftarPaket[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.cyan.withOpacity(0.3)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      paket['nama']!,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Masa Aktif: ${paket['masa']}',
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      paket['harga']!,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.greenAccent),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyan,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: () => _showCheckoutDialog(context, paket['nama']!, paket['harga']!),
-                  child: const Text('Beli', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          );
-        },
+        children: [
+          const Text(
+            'Toko Paket Avenet',
+            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildPackageItem(context, 'Paket Harian (1 GB)', 'Masa Aktif: 1 Hari', 'Rp 5.000', 1.0, 5000),
+          _buildPackageItem(context, 'Paket Hemat (5 GB)', 'Masa Aktif: 7 Hari', 'Rp 20.000', 5.0, 20000),
+          _buildPackageItem(context, 'Paket Reguler (15 GB)', 'Masa Aktif: 30 Hari', 'Rp 45.000', 15.0, 45000),
+          _buildPackageItem(context, 'Paket VIP Unlimited (50 GB)', 'Masa Aktif: 30 Hari', 'Rp 90.000', 50.0, 90000),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPackageItem(BuildContext context, String title, String activePeriod, String price, double gbAmount, int rawPrice) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.cyan.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(activePeriod, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              const SizedBox(height: 8),
+              Text(price, style: const TextStyle(color: Colors.greenAccent, fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+            onPressed: () => _buyPackage(context, title, gbAmount, rawPrice),
+            child: const Text('Beli', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }
