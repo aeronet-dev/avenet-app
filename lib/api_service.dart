@@ -6,6 +6,16 @@ class ApiService {
   static int connectedDevices = 0;
   static bool isHotspotActive = false;
 
+  // Keamanan Admin Panel
+  static const String _adminPin = '123456'; // PIN Rahasia Admin
+  static double totalServerQuota = 500.0; // Total Kapasitas Server (GB)
+  static bool isServerMaintenance = false; // Status Server Utama
+
+  // Verifikasi PIN Admin
+  static bool verifyAdminPin(String pin) {
+    return pin == _adminPin;
+  }
+
   // Fungsi untuk klaim Free Trial 50MB
   static bool claimFreeTrial() {
     if (!isFreeTrialClaimed) {
