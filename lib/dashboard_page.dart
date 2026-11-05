@@ -102,9 +102,8 @@ ElevatedButton(
         ),
       );
     } else {
-      // Logika menghubungkan VPN jika waktu masih ada
       setState(() {
-        // Ubah status koneksi jadi terhubung
+        // Logika menghubungkan VPN
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -116,6 +115,11 @@ ElevatedButton(
   },
   child: const Text(
     'Hubungkan Sekarang',
-    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+    style: TextStyle(
+      color: Colors.black,
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    ),
   ),
 ),
+
