@@ -168,7 +168,7 @@ class _StorePageState extends State<StorePage> {
                       const SizedBox(width: 16),
                       const Icon(Icons.speed, size: 16, color: Colors.blue),
                       const SizedBox(width: 4),
-                      Text('Speed: ${item['speed']}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                     Text('Speed: ${item['speed']}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const Divider(height: 24),
