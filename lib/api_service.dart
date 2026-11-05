@@ -2,9 +2,15 @@ class ApiService {
   // Sistem Waktu Durasi Voucher (Pengganti Kuota GB)
   static double sisaWaktu = 0.0; // Dalam Menit
 
-  // Fungsi Durasi Waktu
+  // Variabel Pendukung Dashboard & Free Trial
+  static bool isFreeTrialClaimed = false;
+  static double sisaKuota = 0.0; // Kompatibilitas cadangan
+  static double totalServerQuota = 100.0;
+
+  // Fungsi Durasi Waktu & Kuota
   static void tambahWaktu(double menit) {
     sisaWaktu += menit;
+    isFreeTrialClaimed = true;
   }
 
   static void kurangiWaktu(double menit) {
@@ -12,6 +18,10 @@ class ApiService {
       sisaWaktu -= menit;
       if (sisaWaktu < 0) sisaWaktu = 0.0;
     }
+  }
+
+  static void addQuota(double amount) {
+    sisaKuota += amount;
   }
 
   // Variabel Pendukung Halaman Profil, Admin, & Hotspot
@@ -34,5 +44,9 @@ class ApiService {
   static void toggleHotspot() {
     isHotspotActive = !isHotspotActive;
     connectedDevices = isHotspotActive ? 1 : 0;
+  }
+
+  static bool verifyAdminPin(String pin) {
+    return pin == '1234'; // PIN default admin
   }
 }
