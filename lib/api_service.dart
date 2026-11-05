@@ -7,6 +7,16 @@ class ApiService {
   static double sisaKuota = 0.0;
   static double totalServerQuota = 100.0;
 
+  // Fungsi Klaim Free Trial yang dicari oleh Dashboard
+  static bool claimFreeTrial() {
+    if (!isFreeTrialClaimed) {
+      sisaWaktu += 30.0; // Berikan free trial 30 menit
+      isFreeTrialClaimed = true;
+      return true;
+    }
+    return false;
+  }
+
   // Fungsi Durasi Waktu & Kuota
   static void tambahWaktu(double menit) {
     sisaWaktu += menit;
