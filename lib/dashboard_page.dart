@@ -255,7 +255,7 @@ class _DashboardHomeTabState extends State<DashboardHomeTab> {
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Klaim Free Trial 50MB (Khusus Pengguna Baru)',
+                          'Klaim Free Trial 30menit (Khusus Pengguna Baru)',
                           style: TextStyle(color: Colors.cyan, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
