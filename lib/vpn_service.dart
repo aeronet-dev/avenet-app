@@ -6,9 +6,9 @@ class VpnService {
   static Timer? _timer;
 
   // Konfigurasi VPS 3X-UI / Xray VLESS Anda
-  static const String serverIp = '103.xx.xx.xx'; // Ganti dengan IP VPS Anda
-  static const int serverPort = 443;             // Ganti dengan Port VLESS Anda
-  static const String uuid = 'YOUR-UUID-HERE';   // Ganti dengan UUID dari 3X-UI
+  static const String serverIp = '103.55.36.173';
+  static const int serverPort = 19839;
+  static const String uuid = '1d643b7c-dbfe-496a-afa9-6af2326ab510';
 
   static bool get isConnected => _isConnected;
 
@@ -27,12 +27,12 @@ class VpnService {
       if (_isConnected) {
         ApiService.kurangiWaktu(1.0); // Kurangi 1 menit
         onTick(); // Perbarui tampilan UI
+      }
 
-        // Jika masa aktif habis saat digunakan
-        if (ApiService.sisaWaktu <= 0) {
-          disconnect();
-          onExpired(); // Hentikan koneksi & beri tahu pengguna
-        }
+      // Jika masa aktif habis saat digunakan
+      if (ApiService.sisaWaktu <= 0) {
+        disconnect();
+        onExpired(); // Hentikan koneksi & beri tahu pengguna
       }
     });
 
