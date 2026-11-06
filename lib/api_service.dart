@@ -1,12 +1,15 @@
 class ApiService {
-  // Simulasi masa aktif internet (dalam jam)
-  static double sisaWaktuAktif = 5.0;
+  // Simulasi masa aktif internet & kuota
+  static double sisaWaktuAktif = 5.0; // Digunakan juga untuk sisaWaktu
+  static double sisaWaktu = 5.0; 
+  static double totalServerQuota = 50.0;
 
-  // Variabel status tambahan yang dipanggil oleh profile_page.dart
+  // Variabel status tambahan
   static bool isServerMaintenance = false;
   static String referralCode = 'AVENET99';
   static bool isHotspotActive = true;
   static int connectedDevices = 1;
+  static bool isFreeTrialClaimed = false;
 
   // Daftar database kode voucher manual yang valid beserta durasinya (dalam jam)
   static final Map<String, double> validVouchers = {
@@ -21,6 +24,31 @@ class ApiService {
   // Fungsi untuk menambah waktu masa aktif
   static void tambahWaktu(double hours) {
     sisaWaktuAktif += hours;
+    sisaWaktu = sisaWaktuAktif;
+  }
+
+  // Fungsi untuk mengurangi waktu (dipanggil vpn_service)
+  static void kurangiWaktu(double hours) {
+    sisaWaktuAktif -= hours;
+    if (sisaWaktuAktif < 0) sisaWaktuAktif = 0;
+    sisaWaktu = sisaWaktuAktif;
+  }
+
+  // Fungsi untuk menambah kuota server
+  static void addQuota(double amount) {
+    totalServerQuota += amount;
+  }
+
+  // Fungsi untuk verifikasi PIN Admin
+  static bool verifyAdminPin(String pin) {
+    // Ganti PIN admin sesuai keinginan Anda, contoh: '1234'
+    return pin == '1234';
+  }
+
+  // Fungsi untuk toggle hotspot
+  static void toggleHotspot() {
+    isHotspotActive = !isHotspotActive;
+    addAdminLog(isHotspotActive ? 'Hotspot diaktifkan' : 'Hotspot dimatikan');
   }
 
   // Fungsi untuk validasi dan redeem voucher manual
