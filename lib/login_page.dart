@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,13 +16,23 @@ class _LoginPageState extends State<LoginPage> {
   void _handleLogin() {
     String user = _usernameController.text.trim();
 
-    if (user.isEmpty && _selectedMethod != 'Iuran') {
+    if (_selectedMethod == 'Voucher' && user.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username / Kode tidak boleh kosong!')),
+        const SnackBar(content: Text('Kode Voucher tidak boleh kosong!')),
       );
       return;
     }
 
+    if (_selectedMethod == 'Member' && user.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nomor WhatsApp / Akun Google tidak boleh kosong!')),
+      );
+      return;
+    }
+
+    // Simulasi Login Sukses & Catat Log
+    ApiService.addAdminLog('Login berhasil menggunakan metode: $_selectedMethod');
+    
     // Pindah ke menu utama setelah login
     Navigator.pushReplacementNamed(context, '/home');
   }
@@ -37,7 +48,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Teks Sambutan Khas Avenet
                 const Text(
                   'Selamat Datang di Avenet',
                   style: TextStyle(
@@ -48,17 +58,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Solusi akses internet cepat, aman, dan mudah. Masukkan akun atau voucher Anda untuk memulai koneksi.',
+                  'Solusi akses internet cepat, aman, dan mudah.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
-
-                // Kartu Login Hotspot
                 Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
+                    color: const Color(0xFF11E293B),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -85,8 +93,8 @@ class _LoginPageState extends State<LoginPage> {
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       const SizedBox(height: 20),
-
-                      // Tombol Pilihan Metode
+                      
+                      // Tombol Pilihan Metode Login
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: ['Voucher', 'Member', 'Iuran'].map((method) {
@@ -97,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                               label: Text(method),
                               selected: isSelected,
                               selectedColor: Colors.cyan,
-                              backgroundColor: const Color(0xFF0F172A),
+                              backgroundColor: const Color(0xFFF0F172A),
                               labelStyle: TextStyle(
                                 color: isSelected ? Colors.black : Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -115,39 +123,41 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         _selectedMethod == 'Iuran'
                             ? 'Masukkan ID Pelanggan / Nomor Iuran'
-                            : 'Masukkan Username dan Password',
+                            : _selectedMethod == 'Member'
+                                ? 'Masukkan Nomor WhatsApp / OTP'
+                                : 'Masukkan Kode Voucher',
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       const SizedBox(height: 20),
 
-                      // Form Input Username
+                      // Form Input Username / Nomor
                       TextField(
                         controller: _usernameController,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: _selectedMethod == 'Iuran' ? 'ID Pelanggan / No. Iuran' : 'Username / Kode Voucher',
+                          labelText: _selectedMethod == 'Iuran' ? 'ID Pelanggan' : 'Akun / Voucher / WhatsApp',
                           labelStyle: const TextStyle(color: Colors.grey),
                           prefixIcon: const Icon(Icons.person_outline, color: Colors.cyan),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           filled: true,
-                          fillColor: const Color(0xFF0F172A),
+                          fillColor: const Color(0xFFF0F172A),
                         ),
                       ),
                       const SizedBox(height: 15),
 
-                      // Form Input Password
+                      // Form Input Password (jika bukan iuran)
                       if (_selectedMethod != 'Iuran') ...[
                         TextField(
                           controller: _passwordController,
                           obscureText: true,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            labelText: 'Password',
+                            labelText: 'Password / PIN',
                             labelStyle: const TextStyle(color: Colors.grey),
                             prefixIcon: const Icon(Icons.lock_outline, color: Colors.cyan),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             filled: true,
-                            fillColor: const Color(0xFF0F172A),
+                            fillColor: const Color(0xFFF0F172A),
                           ),
                         ),
                         const SizedBox(height: 25),
@@ -166,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           onPressed: _handleLogin,
                           child: Text(
-                            _selectedMethod == 'Iuran' ? 'Cek Status Iuran' : 'Login',
+                            _selectedMethod == 'Iuran' ? 'Cek Status Iuran' : 'Masuk Sekarang',
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ),
@@ -182,4 +192,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
