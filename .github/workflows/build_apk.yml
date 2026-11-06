@@ -1,2 +1,2 @@
-- name: Build Debug APK for Android
-  run: flutter build apk --debug --target-platform android-arm64 --no-pub
+    - name: Build APK Profile Mode
+      run: flutter build apk --profile --target-platform android-arm64 --no-pub
