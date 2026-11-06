@@ -5,7 +5,7 @@ class VpnService {
   static bool _isConnected = false;
   static Timer? _timer;
 
-  // Konfigurasi VPS 3X-UI / Xray VLESS Anda
+  // Konfigurasi Server V2Ray / VLESS Avenet Anda
   static const String serverIp = '103.55.36.173';
   static const int serverPort = 19839;
   static const String uuid = '1d643b7c-dbfe-496a-afa9-6af2326ab510';
@@ -21,7 +21,7 @@ class VpnService {
     _isConnected = true;
     ApiService.addAdminLog('VPN VLESS terhubung ke server $serverIp:$serverPort');
 
-    // Jalankan timer untuk mengurangi masa aktif setiap 1 menit (60 detik)
+    // Timer untuk mengurangi masa aktif setiap 1 menit (60 detik)
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
       if (_isConnected) {
@@ -43,6 +43,6 @@ class VpnService {
   static void disconnect() {
     _isConnected = false;
     _timer?.cancel();
-    ApiService.addAdminLog('VPN VLESS diputuskan oleh pengguna/sistem');
+    ApiService.addAdminLog('VPN VLESS diputus oleh pengguna/sistem');
   }
 }
