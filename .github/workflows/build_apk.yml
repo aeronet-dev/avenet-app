@@ -1,4 +1,4 @@
-name: Build Flutter APK
+Name: Build Flutter APK
 
 on:
   push:
@@ -31,12 +31,11 @@ jobs:
     - name: Regenerate Android Platform Files
       run: flutter create . --platforms=android --project-name=avenet_app
 
-    - name: Build Release APK
-      run: flutter build apk --release --no-pub
+    - name: Build Debug APK
+      run: flutter build apk --debug --no-pub
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-release
-        path: build/app/outputs/flutter-apk/app-release.apk
-        
+        name: app-debug
+        path: build/app/outputs/flutter-apk/app-debug.apk
