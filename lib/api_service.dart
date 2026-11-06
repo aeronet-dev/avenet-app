@@ -1,6 +1,12 @@
 class ApiService {
-  // Simulasi penyimpanan masa aktif (dalam jam)
-  static double sisaWaktuAktif = 5.0; // Contoh sisa waktu awal
+  // Simulasi masa aktif internet (dalam jam)
+  static double sisaWaktuAktif = 5.0;
+
+  // Variabel status tambahan yang dipanggil oleh profile_page.dart
+  static bool isServerMaintenance = false;
+  static String referralCode = 'AVENET99';
+  static bool isHotspotActive = true;
+  static int connectedDevices = 1;
 
   // Daftar database kode voucher manual yang valid beserta durasinya (dalam jam)
   static final Map<String, double> validVouchers = {
