@@ -4,7 +4,7 @@ class ApiService {
   static double sisaWaktu = 5.0; 
   static double totalServerQuota = 50.0;
 
-  // Variabel status tambahan
+  // Variabel status tambahan yang dipanggil di UI
   static bool isServerMaintenance = false;
   static String referralCode = 'AVENET99';
   static bool isHotspotActive = true;
@@ -38,7 +38,7 @@ class ApiService {
   static bool claimFreeTrial() {
     if (!isFreeTrialClaimed) {
       isFreeTrialClaimed = true;
-      tambahWaktu(0.5); // Bonus 30 Menit (0.5 Jam) sesuai deskripsi UI
+      tambahWaktu(0.5); // Bonus 30 Menit (0.5 Jam)
       addAdminLog('Free trial berhasil diklaim (+30 Menit)');
       return true;
     }
