@@ -1,6 +1,6 @@
 class ApiService {
   // Simulasi masa aktif internet & kuota
-  static double sisaWaktuAktif = 5.0; // Digunakan juga untuk sisaWaktu
+  static double sisaWaktuAktif = 5.0; 
   static double sisaWaktu = 5.0; 
   static double totalServerQuota = 50.0;
 
@@ -34,6 +34,17 @@ class ApiService {
     sisaWaktu = sisaWaktuAktif;
   }
 
+  // Fungsi untuk klaim free trial (dipanggil dashboard_page)
+  static bool claimFreeTrial() {
+    if (!isFreeTrialClaimed) {
+      isFreeTrialClaimed = true;
+      tambahWaktu(1.0); // Bonus 1 jam gratis
+      addAdminLog('Free trial berhasil diklaim (+1 Jam)');
+      return true;
+    }
+    return false;
+  }
+
   // Fungsi untuk menambah kuota server
   static void addQuota(double amount) {
     totalServerQuota += amount;
@@ -41,7 +52,6 @@ class ApiService {
 
   // Fungsi untuk verifikasi PIN Admin
   static bool verifyAdminPin(String pin) {
-    // Ganti PIN admin sesuai keinginan Anda, contoh: '1234'
     return pin == '1234';
   }
 
