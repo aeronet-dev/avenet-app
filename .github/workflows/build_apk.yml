@@ -25,22 +25,11 @@ jobs:
         channel: 'stable'
         cache: true
 
-    - name: Clean and Get Dependencies
-      run: flutter clean && flutter pub get
-
-    - name: Regenerate Android Platform Files
-      run: flutter create . --platforms=android --project-name=avenet_app
-
-    - name: Set Unique Application ID
-      run: |
-        GRADLE_FILE="android/app/build.gradle"
-        if [ -f "$GRADLE_FILE" ]; then
-          sed -i 's/applicationId "com.example.avenet_app"/applicationId "com.aeronet.avenetapp"/g' $GRADLE_FILE
-          sed -i 's/applicationId "com.avenet.avenet"/applicationId "com.aeronet.avenetapp"/g' $GRADLE_FILE
-        fi
+    - name: Get Dependencies
+      run: flutter pub get
 
     - name: Build Debug APK
-      run: flutter build apk --debug --no-pub
+      run: flutter build apk --debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
