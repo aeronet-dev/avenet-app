@@ -20,7 +20,6 @@ class _StorePageState extends State<StorePage> {
       return;
     }
 
-    // Simulasi redeem kode fisik (bisa disesuaikan dengan API backend Anda)
     ApiService.tambahWaktu(2.0); // Tambah 2 jam sebagai contoh
     ApiService.addAdminLog('Berhasil tukar voucher fisik: $code');
     
@@ -50,7 +49,6 @@ class _StorePageState extends State<StorePage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
-              // Kotak untuk menampilkan QRIS (bisa diganti dengan Image.asset jika punya gambar QRIS asli)
               Container(
                 width: 200,
                 height: 200,
@@ -87,7 +85,6 @@ class _StorePageState extends State<StorePage> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
               onPressed: () {
                 Navigator.pop(context);
-                // Proses aktivasi otomatis setelah pembayaran dikonfirmasi
                 ApiService.tambahWaktu(hours.toDouble());
                 ApiService.addAdminLog('Pembayaran sukses untuk paket: $packageName');
                 
@@ -109,7 +106,7 @@ class _StorePageState extends State<StorePage> {
     return Scaffold(
       backgroundColor: const Color(0xFF101927),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF11E293B),
+        backgroundColor: const Color(0xFF1E293B), // Diperbaiki dari 0xFF11E293B
         title: const Text('Toko Voucher Internet', style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
@@ -120,7 +117,7 @@ class _StorePageState extends State<StorePage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF11E293B),
+              color: const Color(0xFF1E293B), // Diperbaiki dari 0xFF11E293B
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.cyan.withOpacity(0.3)),
             ),
@@ -182,7 +179,7 @@ class _StorePageState extends State<StorePage> {
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF11E293B),
+        color: const Color(0xFF1E293B), // Diperbaiki dari 0xFF11E293B
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isPopular ? Colors.cyan : Colors.transparent),
       ),
