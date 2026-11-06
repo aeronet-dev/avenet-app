@@ -38,8 +38,8 @@ class ApiService {
   static bool claimFreeTrial() {
     if (!isFreeTrialClaimed) {
       isFreeTrialClaimed = true;
-      tambahWaktu(1.0); // Bonus 1 jam gratis
-      addAdminLog('Free trial berhasil diklaim (+1 Jam)');
+      tambahWaktu(0.5); // Bonus 30 Menit (0.5 Jam) sesuai deskripsi UI
+      addAdminLog('Free trial berhasil diklaim (+30 Menit)');
       return true;
     }
     return false;
